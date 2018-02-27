@@ -26,8 +26,10 @@ namespace FlattiverseGtk {
             WindowMenu windowMenu = new WindowMenu(client);
             windowMenu.Run();
 
+            try {
+                System.Windows.Forms.Application.Run(new WindowForms(this, client));
+            }catch{}
 
-            System.Windows.Forms.Application.Run(new WindowForms(this, client));
 
             //window = new WindowMain(this, client);
 

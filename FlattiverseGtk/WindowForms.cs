@@ -10,13 +10,15 @@ public partial class WindowForms : System.Windows.Forms.Form {
 
     Controller controller;
     Client client;
-    RendererCairo renderer;
 
     Button buttonJoin;
     Button buttonQuit;
     ProgressBar energyBar;
     Panel drawingArea;
     RichTextBox messages;
+    TableLayoutPanel table;
+
+    float zoomFactor = 1000f;
 
 
     public WindowForms(Controller controller, Client client) {
@@ -29,33 +31,29 @@ public partial class WindowForms : System.Windows.Forms.Form {
             energyBar.Value = (int)client.Ship.Energy;
         };
 
-        drawingArea.Click += (sender, e) => {
-            //client.Move(
-            //    new Vector((float)args.Event.X, (float)args.Event.Y)
-            //    - new Vector(renderer.CenterX, renderer.CenterY)
-            //);
-        };
-
         client.GetMessageServer().NewMessageEvent += NewMessage;
         drawingArea.Paint += RadarScreenPaintEventHandler;
         drawingArea.Resize += RadarScreenResizedHandler;
         client.GetScanner().ScanUpdate += ScanUpdate;
+        Resize += WindowResized;
     }
 
     void Build(){
-        TableLayoutPanel table = new TableLayoutPanel();
+
+        table = new TableLayoutPanel();
+        table.Size = Size;
         table.ColumnCount = 3;
         table.RowCount = 3;
 
 
         buttonQuit = new Button();
         buttonQuit.Text = "Quit";
-        buttonQuit.Click += OnButtonJoinClicked;
+        buttonQuit.Click += OnButtonQuitClicked;
         table.Controls.Add(buttonQuit, 0, 0);
 
         buttonJoin = new Button();
         buttonJoin.Text = "Join";
-        buttonJoin.Click += OnButtonQuitClicked;
+        buttonJoin.Click += OnButtonJoinClicked;
         table.Controls.Add(buttonJoin, 1, 0);
 
         energyBar = new ProgressBar();
@@ -63,11 +61,32 @@ public partial class WindowForms : System.Windows.Forms.Form {
         energyBar.Value = energyBar.Maximum;
         table.Controls.Add(energyBar, 2, 0);
 
+        TableLayoutPanel subTable = new TableLayoutPanel();
+        subTable.ColumnCount = 1;
+        subTable.RowCount = 2;
+        TextBox zoom = new TextBox();
+        zoom.Text = zoomFactor.ToString();
+        Button app = new Button();
+        app.Text = "Apply";
+        app.Click += (sender, e) => { this.zoomFactor = float.Parse(zoom.Text); };
+        subTable.Controls.Add(zoom, 0, 0);
+        subTable.Controls.Add(app, 0,1);
+        table.Controls.Add(subTable, 0, 1);
+
         drawingArea = new Panel();
+        drawingArea.Size = new Size(400, 200);
+        drawingArea.MouseClick += DrawingClicked;
+        drawingArea.MouseWheel += (sender, e) => {
+            Console.WriteLine(e.Delta);
+        };
         table.Controls.Add(drawingArea, 1, 1);
 
         messages = new RichTextBox();
+        messages.Size = drawingArea.Size;
         table.Controls.Add(messages, 1, 2);
+
+        table.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
+
 
         Controls.Add(table);
     }
@@ -75,6 +94,10 @@ public partial class WindowForms : System.Windows.Forms.Form {
     protected void OnButtonQuitClicked(object sender, EventArgs e) {
         Dispose();
         client.Stop();
+    }
+
+    void WindowResized(object sender, EventArgs e){
+        table.Size = Size;
     }
 
     private void RadarScreenResizedHandler(object sender, EventArgs e) {
@@ -85,11 +108,13 @@ public partial class WindowForms : System.Windows.Forms.Form {
         if (!Client.running)
             return;
 
+        e.Graphics.Clear(Color.Black);
+
         // Compute magnification factor
         int radarScreenMinDimension = Math.Min(drawingArea.Width, drawingArea.Height);
         // Make screen at least 2000x2000 flattiverse miles with Ship at center
         // i.e. minimum screenPixels corresponds to 2000 flattiverse miles
-        float displayFactor = radarScreenMinDimension / 2000f;
+        float displayFactor = radarScreenMinDimension / zoomFactor;
 
         float centerX = drawingArea.Width / 2;
         float centerY = drawingArea.Height / 2;
@@ -97,7 +122,7 @@ public partial class WindowForms : System.Windows.Forms.Form {
         float shipRadius = client.GetShipSize() * displayFactor;
 
         Graphics g = e.Graphics;
-        g.DrawEllipse(Pens.White,
+        g.DrawEllipse(Pens.Purple,
             centerX - shipRadius, centerY - shipRadius,
             shipRadius * 2, shipRadius * 2);
 
@@ -124,6 +149,17 @@ public partial class WindowForms : System.Windows.Forms.Form {
         }
     }
 
+    void DrawingClicked(object sender, MouseEventArgs e){
+        client.Move(new Vector());
+
+
+        client.Move(
+            new Vector((float)e.X, e.Y)
+            - new Vector(drawingArea.Width / 2, drawingArea.Height / 2)
+        );
+
+    }
+
     private void NewMessage(FlattiverseMessage flattiverseMessage) {
 
         //if(!Client.running){
@@ -132,7 +168,16 @@ public partial class WindowForms : System.Windows.Forms.Form {
 
         if (InvokeRequired) {
             Console.WriteLine("INVOKE REQUIRED");
-            //Invoke(new MethodInvoker(NewMessage));
+            try {
+                Invoke(
+                (MethodInvoker)delegate {
+                    NewMessage(flattiverseMessage);
+                    }
+                );
+            }catch(Exception ex){
+                Console.WriteLine(ex.Message);
+            }
+
         } else {
             if (messages.Text == "") {
 
