@@ -34,7 +34,7 @@ public class Client {
     private Client(Controller controller, String email, String password) {
         try {
             this.controller = controller;
-            connector = new Connector("mahait13@hs-esslingen.de", "ichbineinpasswort");
+            connector = new Connector(email, password);
             if(connector == null)
                 Console.WriteLine("NULL!!");
             messageServer = new MessageServer(this);
@@ -166,6 +166,12 @@ public class Client {
     public Map Map {
         get {
             return map;
+        }
+    }
+
+    public List<Unit> Units {
+        get {
+            return map.Units;
         }
     }
 

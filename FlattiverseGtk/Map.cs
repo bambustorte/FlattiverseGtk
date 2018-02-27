@@ -5,32 +5,49 @@ using System.Threading;
 
 namespace FlattiverseGtk {
     public class Map {
-        List<Unit> units;
+        List<Unit> units = new List<Unit>();
+        Dictionary<string, Unit> mapUnits = new Dictionary<string, Unit>();
         ReaderWriterLock listLock = new ReaderWriterLock();
         Client client;
 
         public Map(Client client) {
-            units = new List<Unit>();
             this.client = client;
             //client.TickEvent += MoveAway;
         }
 
-        public void Insert(List<Unit> scannedUnits){
-            foreach(Unit nU in scannedUnits){
-                bool contains = false;
+        //public void Insert(List<Unit> scannedUnits){
+        //    foreach(Unit nU in scannedUnits){
+        //        bool contains = false;
+        //
+        //        listLock.AcquireWriterLock(100);
+        //        for (int i = 0; i < units.Count; i++){
+        //            if(nU.Name == units[i].Name){
+        //                contains = true;
+        //                units[i] = nU;
+        //            }
+        //        }
+        //
+        //        if(!contains){
+        //            units.Add(nU);
+        //        }
+        //        listLock.ReleaseWriterLock();
+        //    }
+        //}
 
-                listLock.AcquireWriterLock(100);
-                for (int i = 0; i < units.Count; i++){
-                    if(nU.Name == units[i].Name){
-                        contains = true;
-                        units[i] = nU;
-                    }
-                }
+        public void Insert(List<Unit> units) {
+            listLock.AcquireWriterLock(100);
+            foreach (Unit u in units) {
+                mapUnits[u.Name] = u;
+            }
+            listLock.ReleaseWriterLock();
+        }
 
-                if(!contains){
-                    units.Add(nU);
-                }
-                listLock.ReleaseWriterLock();
+        public List<Unit> Units {
+            get {
+                listLock.AcquireReaderLock(100);
+                List<Unit> units = new List<Unit>(mapUnits.Values);
+                listLock.ReleaseReaderLock();
+                return units;
             }
         }
 
@@ -49,18 +66,18 @@ namespace FlattiverseGtk {
             }
         }
 
-        public void MoveAway(){
-            if (UnitList.Count == 0)
-                return;
-
-            Unit unit = UnitList[0];
-
-            foreach(Unit u in this.UnitList){
-                if (unit.Position.Length > u.Position.Length)
-                    unit = u;
-            }
-
-            client.SetMoveVector(-unit.Position);
-        }
+        //public void MoveAway(){
+        //    if (UnitList.Count == 0)
+        //        return;
+        //
+        //    Unit unit = UnitList[0];
+        //
+        //    foreach(Unit u in this.UnitList){
+        //        if (unit.Position.Length > u.Position.Length)
+        //            unit = u;
+        //    }
+        //
+        //    client.SetMoveVector(-unit.Position);
+        //}
     }
 }

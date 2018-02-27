@@ -40,7 +40,7 @@ public partial class WindowForms : System.Windows.Forms.Form {
         drawingArea.Select();
     }
 
-    void Build(){
+    void Build() {
 
         table = new TableLayoutPanel();
         table.Size = Size;
@@ -56,10 +56,11 @@ public partial class WindowForms : System.Windows.Forms.Form {
         buttonJoin = new Button();
         buttonJoin.Text = "Join";
         buttonJoin.Click += OnButtonJoinClicked;
-        table.Controls.Add(buttonJoin, 1, 0);
+        table.Controls.Add(buttonJoin, 0, 0);
 
         energyBar = new ProgressBar();
         energyBar.Maximum = (int)client.Ship.EnergyMax;
+        energyBar.Step = 10;
         energyBar.Value = energyBar.Maximum;
         table.Controls.Add(energyBar, 2, 0);
 
@@ -72,16 +73,16 @@ public partial class WindowForms : System.Windows.Forms.Form {
         app.Text = "Apply";
         app.Click += (sender, e) => { this.zoomFactor = float.Parse(zoom.Text); };
         subTable.Controls.Add(zoom, 0, 0);
-        subTable.Controls.Add(app, 0,1);
+        subTable.Controls.Add(app, 0, 1);
         table.Controls.Add(subTable, 0, 1);
 
         drawingArea = new Panel();
         drawingArea.Size = new Size(400, 200);
-        
+
         drawingArea.MouseClick += DrawingClicked;
         drawingArea.MouseWheel += (sender, e) => {
             float number = ((e.Delta / Math.Abs(e.Delta)) * 100);
-            zoomFactor += number+zoomFactor < 200 ? 200 : number;
+            zoomFactor += number + zoomFactor < 200 ? 200 : number;
             zoom.Text = zoomFactor.ToString();
         };
         table.Controls.Add(drawingArea, 1, 1);
@@ -101,16 +102,16 @@ public partial class WindowForms : System.Windows.Forms.Form {
         //controller.StopAll();
     }
 
-    void WindowResized(object sender, EventArgs e){
+    void WindowResized(object sender, EventArgs e) {
         table.Size = Size;
-        
+
     }
 
     private void RadarScreenResizedHandler(object sender, EventArgs e) {
         drawingArea.Refresh();
     }
 
-    void RadarScreenPaintEventHandler(object sender, PaintEventArgs e){
+    void RadarScreenPaintEventHandler(object sender, PaintEventArgs e) {
         if (!Client.running)
             return;
 
@@ -128,20 +129,39 @@ public partial class WindowForms : System.Windows.Forms.Form {
         float shipRadius = client.GetShipSize() * displayFactor;
 
         Graphics g = e.Graphics;
-        g.DrawEllipse(Pens.Purple,
-            centerX - shipRadius, centerY - shipRadius,
-            shipRadius * 2, shipRadius * 2);
 
+        //ship
+        {
+            g.DrawEllipse(Pens.Purple,
+                centerX - shipRadius, centerY - shipRadius,
+                shipRadius * 2, shipRadius * 2);
+        }
 
-        foreach (Unit u in client.Map.UnitList) {
+        foreach (Unit u in client.Units) {
             float uX = centerX + u.Position.X * displayFactor;
             float uY = centerY + u.Position.Y * displayFactor;
             float uR = u.Radius * displayFactor;
-            g.DrawEllipse(Pens.Green, uX - uR, uY - uR, uR * 2, uR * 2);
+            Pen pen;
+            switch (u.Kind) {
+                case UnitKind.Sun:
+                    pen = Pens.Yellow;
+                    break;
+                case UnitKind.Planet:
+                    pen = Pens.SandyBrown;
+                    break;
+                case UnitKind.Moon:
+                    pen = Pens.LightGray;
+                    break;
+
+                default:
+                    pen = Pens.Pink;
+                    break;
+            }
+            g.DrawEllipse(pen, uX - uR, uY - uR, uR * 2, uR * 2);
         }
     }
 
-    void ScanUpdate(){
+    void ScanUpdate() {
         drawingArea.Invalidate();
     }
 
@@ -155,7 +175,7 @@ public partial class WindowForms : System.Windows.Forms.Form {
         }
     }
 
-    void DrawingClicked(object sender, MouseEventArgs e){
+    void DrawingClicked(object sender, MouseEventArgs e) {
         drawingArea.Select();
         client.SetMoveVector(
             new Vector((float)e.X, e.Y)
@@ -165,21 +185,16 @@ public partial class WindowForms : System.Windows.Forms.Form {
     }
 
     private void NewMessage(FlattiverseMessage flattiverseMessage) {
-
-        //if(!Client.running){
-        //    return;
-        //}
-
         if (InvokeRequired) {
             Console.WriteLine("INVOKE REQUIRED");
             try {
                 Invoke(
                 (MethodInvoker)delegate {
                     NewMessage(flattiverseMessage);
-                    }
+                }
                 );
-            }catch(Exception ex){
-                Console.WriteLine(ex.Message);
+            } catch (Exception ex) {
+                Console.WriteLine(ex.InnerException);
             }
 
         } else {

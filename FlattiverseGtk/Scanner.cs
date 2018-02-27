@@ -23,22 +23,6 @@ public class Scanner {
     }
 
     public void Scan() {
-        //if (scannedUnits.Count == 0) {
-        //    Scan(scanAngle += 90, 300);
-        //    return;
-        //}
-
-        //float direction = scannedUnits.ToArray()[0].Position.Angle;
-        //Vector v = Vector.FromAngleLength(0, ship.EngineAcceleration.Limit);
-        //ship.Move(v);
-
-        //Console.WriteLine(
-        //    "\tvangle: " 
-        //    + (float)v.Angle 
-        //    + "\n\tunitangle: " 
-        //    + scannedUnits.ToArray()[0].Position.Angle
-        //);
-
         Scan(scanAngle += 90, 300);
         map.Insert(scannedUnits);
 

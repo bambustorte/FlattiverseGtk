@@ -42,13 +42,15 @@ namespace FlattiverseGtk {
         public void Run() {
             while (Client.running) {
                 FlattiverseMessage message;
-                messageLock.AcquireWriterLock(100);
                 while (client.GetConnector().NextMessage(out message)) {
+                    messageLock.AcquireWriterLock(100);
                     flattiverseMessages.Add(message);
+                    messageLock.ReleaseWriterLock();
+                    Console.WriteLine(message);
                     if (NewMessageEvent != null)
                         NewMessageEvent(message);
                 }
-                messageLock.ReleaseWriterLock();
+
             }
         }
     }
