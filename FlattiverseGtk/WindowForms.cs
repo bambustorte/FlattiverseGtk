@@ -36,6 +36,8 @@ public partial class WindowForms : System.Windows.Forms.Form {
         drawingArea.Resize += RadarScreenResizedHandler;
         client.GetScanner().ScanUpdate += ScanUpdate;
         Resize += WindowResized;
+
+        drawingArea.Select();
     }
 
     void Build(){
@@ -75,9 +77,12 @@ public partial class WindowForms : System.Windows.Forms.Form {
 
         drawingArea = new Panel();
         drawingArea.Size = new Size(400, 200);
+        
         drawingArea.MouseClick += DrawingClicked;
         drawingArea.MouseWheel += (sender, e) => {
-            Console.WriteLine(e.Delta);
+            float number = ((e.Delta / Math.Abs(e.Delta)) * 100);
+            zoomFactor += number+zoomFactor < 200 ? 200 : number;
+            zoom.Text = zoomFactor.ToString();
         };
         table.Controls.Add(drawingArea, 1, 1);
 
@@ -86,18 +91,19 @@ public partial class WindowForms : System.Windows.Forms.Form {
         table.Controls.Add(messages, 1, 2);
 
         table.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
-
+        table.AutoSize = true;
 
         Controls.Add(table);
     }
 
     protected void OnButtonQuitClicked(object sender, EventArgs e) {
         Dispose();
-        client.Stop();
+        //controller.StopAll();
     }
 
     void WindowResized(object sender, EventArgs e){
         table.Size = Size;
+        
     }
 
     private void RadarScreenResizedHandler(object sender, EventArgs e) {
@@ -150,10 +156,8 @@ public partial class WindowForms : System.Windows.Forms.Form {
     }
 
     void DrawingClicked(object sender, MouseEventArgs e){
-        client.Move(new Vector());
-
-
-        client.Move(
+        drawingArea.Select();
+        client.SetMoveVector(
             new Vector((float)e.X, e.Y)
             - new Vector(drawingArea.Width / 2, drawingArea.Height / 2)
         );

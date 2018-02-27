@@ -12,7 +12,7 @@ namespace FlattiverseGtk {
         public Map(Client client) {
             units = new List<Unit>();
             this.client = client;
-            client.TickEvent += MoveAway;
+            //client.TickEvent += MoveAway;
         }
 
         public void Insert(List<Unit> scannedUnits){
@@ -60,7 +60,7 @@ namespace FlattiverseGtk {
                     unit = u;
             }
 
-            client.Move(-unit.Position);
+            client.SetMoveVector(-unit.Position);
         }
     }
 }

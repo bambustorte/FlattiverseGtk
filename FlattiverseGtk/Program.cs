@@ -25,7 +25,7 @@ namespace FlattiverseGtk {
         }
 
         public static void Stop(){
-            System.Windows.Forms.Application.Exit();
+            
         }
     }
 }

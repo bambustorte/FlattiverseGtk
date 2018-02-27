@@ -50,6 +50,7 @@ namespace FlattiverseGtk {
         }
 
         public void StopAll(){
+            System.Windows.Forms.Application.Exit();
             if (client != null)
                 client.Stop();
             MainClass.Stop();

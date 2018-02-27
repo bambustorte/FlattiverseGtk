@@ -21,6 +21,8 @@ public class Client {
     Thread messageServerThread;
     public delegate void TickHandler();
     public event TickHandler TickEvent;
+    bool canMove = true;
+    Vector moveVector;
 
 
     public static Client GetInstance(Controller controller, String email, String password) {
@@ -40,6 +42,8 @@ public class Client {
             playerName = player.Name;
             playerLevel = player.Level;
             map = new Map(this);
+
+            moveVector = new Vector();
 
             messageServerThread = new Thread(messageServer.Run);
             messageServerThread.Name = "messageServerThread";
@@ -73,10 +77,11 @@ public class Client {
                 ugfc.Wait();
 
                 try {
-                    //Move(new Vector(1, 0));
+                    Move();
                     if(TickEvent != null)
                         TickEvent();
                     ugfc.Commit();
+                    canMove = true;
                 } catch (Exception exception) {
                     Console.WriteLine(exception.Message);
                     Client.running = false;
@@ -142,9 +147,16 @@ public class Client {
         return (ship == null) ? 0 : ship.Radius;
     }
 
-    public void Move(Vector vector){
-        vector.Length = ship.EngineAcceleration.Limit;
-        ship.Move(vector);
+    public void SetMoveVector(Vector v){
+        this.moveVector = v;
+        moveVector.Length = ship.EngineAcceleration.Limit;
+    }
+
+    public void Move(){
+        if (!canMove)
+            return;
+        canMove = false;
+        ship.Move(moveVector);
     }
 
     public Scanner GetScanner(){
