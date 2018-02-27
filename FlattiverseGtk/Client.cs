@@ -19,6 +19,8 @@ public class Client {
     MessageServer messageServer;
     Map map;
     Thread messageServerThread;
+    public delegate void TickHandler();
+    public event TickHandler TickEvent;
 
 
     public static Client GetInstance(Controller controller, String email, String password) {
@@ -31,6 +33,8 @@ public class Client {
         try {
             this.controller = controller;
             connector = new Connector(email, password);
+            if(connector == null)
+                Console.WriteLine("NULL!!");
             messageServer = new MessageServer(this);
             player = connector.Player;
             playerName = player.Name;
@@ -41,14 +45,16 @@ public class Client {
             messageServerThread.Name = "messageServerThread";
             messageServerThread.Start();
 
-
             foreach (Player p in connector.Players)
                 if (p.Name == "Towelie")
                     p.Chat("peter");
 
         } catch (Exception e) {
             Console.WriteLine(e.ToString());
+            Stop();
+            return;
         }
+        Console.WriteLine("connected");
     }
 
     public override string ToString() {
@@ -59,23 +65,23 @@ public class Client {
         if (connector == null)
             return;
 
-        UniverseGroupFlowControl ugfc = ug.GetNewFlowControl();
-
+        using(UniverseGroupFlowControl ugfc = ug.GetNewFlowControl()){
         ug.Chat("switched state to peaceful");
 
-        while (Client.running) {
-            ugfc.PreWait();
-            ugfc.Wait();
+            while (Client.running) {
+                ugfc.PreWait();
+                ugfc.Wait();
 
-            try{
-                scanner.Scan();
+                try {
+                    //scanner.Scan();
+                    if(TickEvent != null)
+                        TickEvent();
+                    ugfc.Commit();
+                } catch (Exception exception) {
+                    Console.WriteLine(exception.Message);
+                    Client.running = false;
+                }
             }
-            catch (Exception exception){
-                Console.WriteLine(exception.Message);
-            }
-
-            ugfc.Commit();
-
         }
     }
 
@@ -114,8 +120,10 @@ public class Client {
         return groups;
     }
 
-    public List<ControllableDesign> GetDesigns() {
-        return connector.QueryDesigns();
+    public List<ControllableDesign> Designs {
+        get {
+            return connector.QueryDesigns();
+        }
     }
 
     public void Stop() {
@@ -134,7 +142,17 @@ public class Client {
         return (ship == null) ? 0 : ship.Radius;
     }
 
+    public void Move(double angle){
+        ship.Move(new Vector(Vector.FromAngleLength((float)angle, ship.EngineAcceleration.Limit)));
+    }
+
     public Scanner GetScanner(){
         return scanner;
+    }
+
+    public Map Map {
+        get {
+            return map;
+        }
     }
 }

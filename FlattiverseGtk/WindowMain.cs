@@ -24,7 +24,8 @@ public partial class WindowMain : Gtk.Window {
 
     protected void OnDrawingarea1ExposeEvent(object o, ExposeEventArgs args) {
         DrawingArea da = (DrawingArea)o;
-        renderer = new RendererCairo(client, drawingarea1);
+        if (renderer == null)
+            renderer = new RendererCairo(client, drawingarea1);
     }
 
     protected void OnDeleteEvent(object sender, DeleteEventArgs a) {
@@ -49,29 +50,50 @@ public partial class WindowMain : Gtk.Window {
 
     private void NewMessage(FlattiverseMessage flattiverseMessage) {
         
-
-        if(!Client.running){
-            return;
-        }
+        //if(!Client.running){
+        //    return;
+        //}
 
         Application.Invoke(delegate {
-            if(messages.Buffer.Text.Length == 0){
+            if(messages.Buffer.Text == ""){
                 
                 List<FlattiverseMessage> all = client.GetMessageServer().Messages;
                 List<string> lines = new List<string>();
                 foreach (FlattiverseMessage message in all)
                     lines.Add(message.ToString());
-                messages.Buffer.Text = lines.ToArray().ToString();
                 String s = "";
-
                 foreach(String m in lines){
                     s += m;
                     s += "\n";
                 }
+                messages.Buffer.Text += s;
             }
 
             messages.Buffer.Text += flattiverseMessage.ToString();
             messages.Buffer.Text += "\n";
+
+            messages.ScrollToIter(messages.Buffer.EndIter, 0, false, 0, 0);
         });
+    }
+
+    protected void OnDrawingarea1KeyPressEvent(object o, KeyPressEventArgs args) {
+        switch(args.Event.Key){
+            case Gdk.Key.w:
+            case Gdk.Key.W:
+                client.Move(270);
+                break;
+            case Gdk.Key.a:
+            case Gdk.Key.A:
+                client.Move(180);
+                break;
+            case Gdk.Key.s:
+            case Gdk.Key.S:
+                client.Move(90);
+                break;
+            case Gdk.Key.d:
+            case Gdk.Key.D:
+                client.Move(0);
+                break;
+        }
     }
 }

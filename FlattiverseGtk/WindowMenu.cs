@@ -20,7 +20,7 @@ namespace FlattiverseGtk {
 
             ////////////////////////
             List<String> designEntries = new List<string>();
-            foreach(ControllableDesign c in client.GetDesigns()){
+            foreach(ControllableDesign c in client.Designs) {
                 designEntries.Add(c.Name);
             }
             designsDropdown = new ComboBox(designEntries.ToArray());

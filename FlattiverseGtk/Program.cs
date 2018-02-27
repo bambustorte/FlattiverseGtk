@@ -1,5 +1,6 @@
 ﻿using System;
 using Gtk;
+using System.Threading;
 
 namespace FlattiverseGtk {
     class MainClass {
@@ -15,8 +16,12 @@ namespace FlattiverseGtk {
             Application.Init();
 
             Controller controller = new Controller(email, password);
+            Thread main = new Thread(controller.Run);
+            main.Start();
 
-            Application.Run();
+            try {
+                Application.Run();
+            }catch{}
         }
 
         public static void Stop(){

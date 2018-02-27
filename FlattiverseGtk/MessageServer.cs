@@ -25,12 +25,25 @@ namespace FlattiverseGtk {
             }
         }
 
-        public void Run(){
+        //public void Run() {
+        //    if (!Client.running)
+        //        return;
+
+        //    FlattiverseMessage message;
+        //    messageLock.AcquireWriterLock(100);
+        //    while (client.GetConnector().NextMessage(out message)) {
+        //        flattiverseMessages.Add(message);
+        //        if (NewMessageEvent != null)
+        //            NewMessageEvent(message);
+        //    }
+        //    messageLock.ReleaseWriterLock();
+        //}
+
+        public void Run() {
             while (Client.running) {
                 FlattiverseMessage message;
                 messageLock.AcquireWriterLock(100);
                 while (client.GetConnector().NextMessage(out message)) {
-                    Console.WriteLine(message);
                     flattiverseMessages.Add(message);
                     if (NewMessageEvent != null)
                         NewMessageEvent(message);

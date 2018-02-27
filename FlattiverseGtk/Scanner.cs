@@ -19,6 +19,7 @@ public class Scanner {
         this.map = map;
         scannedUnits = new List<Unit>();
         this.client = Client.GetInstance(null, "", "");
+        client.TickEvent += Scan;
     }
 
     public void Scan() {
@@ -40,6 +41,9 @@ public class Scanner {
 
         Scan(scanAngle += 90, 300);
         map.Insert(scannedUnits);
+
+        //this.ScanUpdate += client.GetMessageServer().Run;
+
         if (ScanUpdate != null)
             ScanUpdate();
     }

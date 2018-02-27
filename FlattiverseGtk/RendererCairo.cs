@@ -12,6 +12,9 @@ namespace FlattiverseGtk {
         public static Color PINK = new Color(1, 0, 1);
         public static Color BLUE = new Color(0, 0, 1);
         public static Color WHITE = new Color(1, 1, 1);
+        public static Color YELLOW = new Color(1, 1, 0);
+        public static Color GRAY = new Color(0.5, 0.5, 0.5);
+        public static Color PURPLE = new Color(0.7, 0, 1);
 
         Context context;
         DrawingArea drawingArea;
@@ -51,7 +54,7 @@ namespace FlattiverseGtk {
         }
 
         void NewScan(){
-            units = scanner.GetUnitList();
+            units = client.Map.UnitList;
         }
 
         public void RenderScene(){
@@ -91,7 +94,7 @@ namespace FlattiverseGtk {
             context.Save();
 
             context.Translate(centerX, centerY);
-            context.SetSourceColor(PINK);
+            context.SetSourceColor(PURPLE);
             context.Arc(0, 0, shipRadius, angle, Math.PI*2+angle);
             context.ClosePath();
             context.FillPreserve();
@@ -105,20 +108,92 @@ namespace FlattiverseGtk {
             context.Restore();
         }
 
-        void DrawUnits(){
+        void DrawUnits() {
             context.Save();
 
             foreach (Flattiverse.Unit u in units) {
-                float uX = centerX + u.Position.X * displayFactor;
-                float uY = centerY + u.Position.Y * displayFactor;
-                float uR = u.Radius * displayFactor;
+                switch(u.Kind){
+                    case Flattiverse.UnitKind.Sun:
+                        DrawSun(u);
+                        break;
 
-                context.Arc(uX, uY, uR, 0, 360);
-                context.SetSourceColor(WHITE);
-                context.StrokePreserve();
-                context.SetSourceColor(BLUE);
-                context.Fill();
+                    case Flattiverse.UnitKind.Moon:
+                        DrawMoon(u);
+                        break;
+
+                    case Flattiverse.UnitKind.Planet:
+                        DrawPlanet(u);
+                        break;
+
+                    default:
+                        DrawUnit(u);
+                        break;
+                }
             }
+
+            context.Restore();
+        }
+
+        void DrawSun(Flattiverse.Unit u) {
+            context.Save();
+
+            float uX = centerX + u.Position.X * displayFactor;
+            float uY = centerY + u.Position.Y * displayFactor;
+            float uR = u.Radius * displayFactor;
+
+            context.Arc(uX, uY, uR, 0, 360);
+            context.SetSourceColor(WHITE);
+            context.StrokePreserve();
+            context.SetSourceColor(YELLOW);
+            context.Fill();
+
+            context.Restore();
+        }
+
+        void DrawMoon(Flattiverse.Unit u) {
+            context.Save();
+
+            float uX = centerX + u.Position.X * displayFactor;
+            float uY = centerY + u.Position.Y * displayFactor;
+            float uR = u.Radius * displayFactor;
+
+            context.Arc(uX, uY, uR, 0, 360);
+            context.SetSourceColor(WHITE);
+            context.StrokePreserve();
+            context.SetSourceColor(WHITE);
+            context.Fill();
+
+            context.Restore();
+        }
+
+        void DrawPlanet(Flattiverse.Unit u) {
+            context.Save();
+
+            float uX = centerX + u.Position.X * displayFactor;
+            float uY = centerY + u.Position.Y * displayFactor;
+            float uR = u.Radius * displayFactor;
+
+            context.Arc(uX, uY, uR, 0, 360);
+            context.SetSourceColor(WHITE);
+            context.StrokePreserve();
+            context.SetSourceColor(GRAY);
+            context.Fill();
+
+            context.Restore();
+        }
+
+        void DrawUnit(Flattiverse.Unit u) {
+            context.Save();
+
+            float uX = centerX + u.Position.X * displayFactor;
+            float uY = centerY + u.Position.Y * displayFactor;
+            float uR = u.Radius * displayFactor;
+
+            context.Arc(uX, uY, uR, 0, 360);
+            context.SetSourceColor(WHITE);
+            context.StrokePreserve();
+            context.SetSourceColor(PINK);
+            context.Fill();
 
             context.Restore();
         }

@@ -73,6 +73,9 @@
                 <property name="MemberName" />
                 <property name="WidthRequest">600</property>
                 <property name="HeightRequest">300</property>
+                <property name="CanDefault">True</property>
+                <property name="CanFocus">True</property>
+                <signal name="KeyPressEvent" handler="OnDrawingarea1KeyPressEvent" />
                 <signal name="ExposeEvent" handler="OnDrawingarea1ExposeEvent" />
               </widget>
               <packing>
@@ -87,21 +90,14 @@
           </packing>
         </child>
         <child>
-          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
+          <widget class="Gtk.TextView" id="messages">
             <property name="MemberName" />
-            <property name="ShadowType">In</property>
-            <child>
-              <widget class="Gtk.TextView" id="messages">
-                <property name="MemberName" />
-                <property name="HeightRequest">300</property>
-                <property name="CanFocus">True</property>
-                <property name="ShowScrollbars">True</property>
-                <property name="Editable">False</property>
-                <property name="AcceptsTab">False</property>
-                <property name="Text" translatable="yes" />
-                <property name="WrapMode">Word</property>
-              </widget>
-            </child>
+            <property name="HeightRequest">300</property>
+            <property name="CanFocus">True</property>
+            <property name="Editable">False</property>
+            <property name="AcceptsTab">False</property>
+            <property name="Text" translatable="yes" />
+            <property name="WrapMode">Word</property>
           </widget>
           <packing>
             <property name="Position">2</property>
