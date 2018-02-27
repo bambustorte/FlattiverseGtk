@@ -7,9 +7,12 @@ namespace FlattiverseGtk {
     public class Map {
         List<Unit> units;
         ReaderWriterLock listLock = new ReaderWriterLock();
+        Client client;
 
-        public Map() {
+        public Map(Client client) {
             units = new List<Unit>();
+            this.client = client;
+            client.TickEvent += MoveAway;
         }
 
         public void Insert(List<Unit> scannedUnits){
@@ -44,6 +47,20 @@ namespace FlattiverseGtk {
                 units = value;
                 listLock.ReleaseWriterLock();
             }
+        }
+
+        public void MoveAway(){
+            if (UnitList.Count == 0)
+                return;
+
+            Unit unit = UnitList[0];
+
+            foreach(Unit u in this.UnitList){
+                if (unit.Position.Length > u.Position.Length)
+                    unit = u;
+            }
+
+            client.Move(-unit.Position);
         }
     }
 }

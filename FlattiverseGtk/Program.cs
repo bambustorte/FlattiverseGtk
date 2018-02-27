@@ -20,12 +20,12 @@ namespace FlattiverseGtk {
             main.Start();
 
             try {
-                Application.Run();
+                //Application.Run();
             }catch{}
         }
 
         public static void Stop(){
-            Application.Quit();
+            System.Windows.Forms.Application.Exit();
         }
     }
 }

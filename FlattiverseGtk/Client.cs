@@ -32,14 +32,14 @@ public class Client {
     private Client(Controller controller, String email, String password) {
         try {
             this.controller = controller;
-            connector = new Connector(email, password);
+            connector = new Connector("mahait13@hs-esslingen.de", "ichbineinpasswort");
             if(connector == null)
                 Console.WriteLine("NULL!!");
             messageServer = new MessageServer(this);
             player = connector.Player;
             playerName = player.Name;
             playerLevel = player.Level;
-            map = new Map();
+            map = new Map(this);
 
             messageServerThread = new Thread(messageServer.Run);
             messageServerThread.Name = "messageServerThread";
@@ -73,7 +73,7 @@ public class Client {
                 ugfc.Wait();
 
                 try {
-                    //scanner.Scan();
+                    //Move(new Vector(1, 0));
                     if(TickEvent != null)
                         TickEvent();
                     ugfc.Commit();
@@ -142,8 +142,9 @@ public class Client {
         return (ship == null) ? 0 : ship.Radius;
     }
 
-    public void Move(double angle){
-        ship.Move(new Vector(Vector.FromAngleLength((float)angle, ship.EngineAcceleration.Limit)));
+    public void Move(Vector vector){
+        vector.Length = ship.EngineAcceleration.Limit;
+        ship.Move(vector);
     }
 
     public Scanner GetScanner(){
@@ -153,6 +154,12 @@ public class Client {
     public Map Map {
         get {
             return map;
+        }
+    }
+
+    public Ship Ship {
+        get {
+            return ship;
         }
     }
 }

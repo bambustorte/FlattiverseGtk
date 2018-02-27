@@ -27,14 +27,16 @@ namespace FlattiverseGtk {
             windowMenu.Run();
 
 
-            window = new WindowMain(this, client);
+            System.Windows.Forms.Application.Run(new WindowForms(this, client));
+
+            //window = new WindowMain(this, client);
 
         }
 
         public void Run(){
             if (client == null)
                 return;
-            window.Show();
+            //window.Show();
         }
 
         void Connect(String email, String password){

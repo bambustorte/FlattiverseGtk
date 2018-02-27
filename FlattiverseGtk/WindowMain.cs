@@ -19,6 +19,21 @@ public partial class WindowMain : Gtk.Window {
 
         Build();
 
+        client.TickEvent += delegate {
+            progressbar1.Fraction = client.Ship.Energy / client.Ship.EnergyMax;
+        };
+
+        drawingarea1.AddEvents((int)EventMask.ButtonPressMask);
+        drawingarea1.ButtonPressEvent += delegate (object o, ButtonPressEventArgs args) {
+
+
+
+            //client.Move(
+            //    new Vector((float)args.Event.X, (float)args.Event.Y)
+            //    - new Vector(renderer.CenterX, renderer.CenterY)
+            //);
+        };
+
         client.GetMessageServer().NewMessageEvent += NewMessage;
     }
 
@@ -77,23 +92,24 @@ public partial class WindowMain : Gtk.Window {
     }
 
     protected void OnDrawingarea1KeyPressEvent(object o, KeyPressEventArgs args) {
-        switch(args.Event.Key){
-            case Gdk.Key.w:
-            case Gdk.Key.W:
-                client.Move(270);
-                break;
-            case Gdk.Key.a:
-            case Gdk.Key.A:
-                client.Move(180);
-                break;
-            case Gdk.Key.s:
-            case Gdk.Key.S:
-                client.Move(90);
-                break;
-            case Gdk.Key.d:
-            case Gdk.Key.D:
-                client.Move(0);
-                break;
-        }
+        //switch(args.Event.Key){
+        //    case Gdk.Key.w:
+        //    case Gdk.Key.W:
+        //        client.Move(270);
+        //        Console.WriteLine("moving up");
+        //        break;
+        //    case Gdk.Key.a:
+        //    case Gdk.Key.A:
+        //        client.Move(180);
+        //        break;
+        //    case Gdk.Key.s:
+        //    case Gdk.Key.S:
+        //        client.Move(90);
+        //        break;
+        //    case Gdk.Key.d:
+        //    case Gdk.Key.D:
+        //        client.Move(0);
+        //        break;
+        //}
     }
 }

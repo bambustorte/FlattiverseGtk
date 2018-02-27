@@ -4,6 +4,7 @@ using Cairo;
 using System.Threading;
 using System.Collections.Generic;
 
+
 namespace FlattiverseGtk {
     public class RendererCairo {
 
@@ -201,6 +202,18 @@ namespace FlattiverseGtk {
         void Clear(){
             context.SetSourceColor(BLACK);
             context.Paint();
+        }
+
+        public int CenterX {
+            get {
+                return this.centerX;
+            }
+        }
+
+        public int CenterY {
+            get {
+                return this.centerY;
+            }
         }
     }
 }

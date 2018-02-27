@@ -11,6 +11,8 @@ public partial class WindowMain
 
 	private global::Gtk.Button buttonJoin;
 
+	private global::Gtk.ProgressBar progressbar1;
+
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.DrawingArea drawingarea1;
@@ -55,30 +57,38 @@ public partial class WindowMain
 		w2.Position = 1;
 		w2.Expand = false;
 		w2.Fill = false;
+		// Container child hbox2.Gtk.Box+BoxChild
+		this.progressbar1 = new global::Gtk.ProgressBar();
+		this.progressbar1.Name = "progressbar1";
+		this.hbox2.Add(this.progressbar1);
+		global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.progressbar1]));
+		w3.PackType = ((global::Gtk.PackType)(1));
+		w3.Position = 2;
 		this.vbox2.Add(this.hbox2);
-		global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox2]));
-		w3.Position = 0;
-		w3.Expand = false;
-		w3.Fill = false;
+		global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox2]));
+		w4.Position = 0;
+		w4.Expand = false;
+		w4.Fill = false;
 		// Container child vbox2.Gtk.Box+BoxChild
 		this.hbox1 = new global::Gtk.HBox();
 		this.hbox1.Name = "hbox1";
 		this.hbox1.Spacing = 6;
 		// Container child hbox1.Gtk.Box+BoxChild
 		this.drawingarea1 = new global::Gtk.DrawingArea();
-		this.drawingarea1.WidthRequest = 600;
+		this.drawingarea1.WidthRequest = 216;
 		this.drawingarea1.HeightRequest = 300;
 		this.drawingarea1.CanDefault = true;
 		this.drawingarea1.CanFocus = true;
 		this.drawingarea1.Name = "drawingarea1";
 		this.hbox1.Add(this.drawingarea1);
-		global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.drawingarea1]));
-		w4.Position = 0;
+		global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.drawingarea1]));
+		w5.Position = 0;
 		this.vbox2.Add(this.hbox1);
-		global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
-		w5.Position = 1;
+		global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
+		w6.Position = 1;
 		// Container child vbox2.Gtk.Box+BoxChild
 		this.messages = new global::Gtk.TextView();
+		this.messages.WidthRequest = 600;
 		this.messages.HeightRequest = 300;
 		this.messages.CanFocus = true;
 		this.messages.Name = "messages";
@@ -86,14 +96,14 @@ public partial class WindowMain
 		this.messages.AcceptsTab = false;
 		this.messages.WrapMode = ((global::Gtk.WrapMode)(2));
 		this.vbox2.Add(this.messages);
-		global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.messages]));
-		w6.Position = 2;
+		global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.messages]));
+		w7.Position = 2;
 		this.Add(this.vbox2);
 		if ((this.Child != null))
 		{
 			this.Child.ShowAll();
 		}
-		this.DefaultWidth = 681;
+		this.DefaultWidth = 697;
 		this.DefaultHeight = 661;
 		this.Show();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler(this.OnDeleteEvent);

@@ -9,8 +9,9 @@
     <widget-library name="MonoDevelop.GtkCore, Version=2.6.0.0, Culture=neutral, PublicKeyToken=3ead7498f347467b" />
     <widget-library name="MonoDevelop.Ide, Version=2.6.0.0, Culture=neutral, PublicKeyToken=3ead7498f347467b" />
     <widget-library name="MonoDevelop.Autotools, Version=2.6.0.0, Culture=neutral, PublicKeyToken=3ead7498f347467b" />
+    <widget-library name="../../../../../../app/lib/monodevelop/AddIns/MonoDevelop.GtkCore/libstetic.dll" />
   </import>
-  <widget class="Gtk.Window" id="WindowMain" design-size="681 661">
+  <widget class="Gtk.Window" id="WindowMain" design-size="697 661">
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
     <property name="WindowPosition">CenterOnParent</property>
@@ -56,6 +57,16 @@
                 <property name="Fill">False</property>
               </packing>
             </child>
+            <child>
+              <widget class="Gtk.ProgressBar" id="progressbar1">
+                <property name="MemberName" />
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">2</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
           </widget>
           <packing>
             <property name="Position">0</property>
@@ -71,7 +82,7 @@
             <child>
               <widget class="Gtk.DrawingArea" id="drawingarea1">
                 <property name="MemberName" />
-                <property name="WidthRequest">600</property>
+                <property name="WidthRequest">216</property>
                 <property name="HeightRequest">300</property>
                 <property name="CanDefault">True</property>
                 <property name="CanFocus">True</property>
@@ -92,6 +103,7 @@
         <child>
           <widget class="Gtk.TextView" id="messages">
             <property name="MemberName" />
+            <property name="WidthRequest">600</property>
             <property name="HeightRequest">300</property>
             <property name="CanFocus">True</property>
             <property name="Editable">False</property>

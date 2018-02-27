@@ -63,6 +63,11 @@
     <Reference Include="MonoDevelop.Core, Version=2.6.0.0, Culture=neutral, PublicKeyToken=3ead7498f347467b">
       <Package>monodevelop</Package>
     </Reference>
+    <Reference Include="libstetic">
+      <HintPath>..\..\..\..\..\app\lib\monodevelop\AddIns\MonoDevelop.GtkCore\libstetic.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -85,6 +90,8 @@
     <Compile Include="MessageServer.cs" />
     <Compile Include="Timer.cs" />
     <Compile Include="Map.cs" />
+    <Compile Include="WindowMainForms.cs" />
+    <Compile Include="WindowForms.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
