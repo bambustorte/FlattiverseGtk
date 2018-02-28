@@ -67,7 +67,6 @@ namespace FlattiverseGtk {
             DrawUnits(context, units);
             bufLock.ReleaseWriterLock();
 
-            WindowMain.rendering = false;
             //DrawCrosshair();
 
             //context.GetTarget().Dispose();

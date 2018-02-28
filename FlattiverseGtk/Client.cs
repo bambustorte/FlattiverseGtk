@@ -70,7 +70,7 @@ public class Client {
             return;
 
         using(UniverseGroupFlowControl ugfc = ug.GetNewFlowControl()){
-        ug.Chat("switched state to peaceful");
+        //ug.Chat("switched state to peaceful");
 
             while (Client.running) {
                 ugfc.PreWait();
