@@ -13,8 +13,9 @@ namespace FlattiverseGtk {
 
         public void Sleep(){
             while (Client.running) {
-                System.Threading.Thread.Sleep(1000);
-                GraphicsUpdate();
+                System.Threading.Thread.Sleep(50);
+                if(GraphicsUpdate != null)
+                    GraphicsUpdate();
             }
         }
     }

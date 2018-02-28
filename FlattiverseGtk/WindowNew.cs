@@ -7,15 +7,15 @@ using FlattiverseGtk;
 using System.Collections.Generic;
 using System.Threading;
 
-public partial class WindowMain : Gtk.Window {
-    
+public partial class WindowNew : Gtk.Window {
+
     Controller controller;
     Client client;
     RendererCairo renderer;
     FlattiverseGtk.Timer timer = new FlattiverseGtk.Timer();
     public static bool rendering = false;
 
-    public WindowMain(Controller controller, Client client) : base(Gtk.WindowType.Toplevel) {
+    public WindowNew(Controller controller, Client client) : base(Gtk.WindowType.Toplevel) {
         this.controller = controller;
         this.client = client;
 
@@ -64,7 +64,7 @@ public partial class WindowMain : Gtk.Window {
     }
 
     protected void OnDrawingarea1ExposeEvent(object o, ExposeEventArgs args) {
-        
+
         DrawingArea da = (DrawingArea)o;
 
         Context c = Gdk.CairoHelper.Create(da.GdkWindow);
@@ -89,7 +89,7 @@ public partial class WindowMain : Gtk.Window {
         try {
             client.JoinGame();
             controller.StartAll();
-        } catch (GameException gE){
+        } catch (GameException gE) {
             Console.WriteLine(gE.Message);
         }
     }
@@ -97,14 +97,14 @@ public partial class WindowMain : Gtk.Window {
     private void NewMessage(FlattiverseMessage flattiverseMessage) {
 
         Application.Invoke(delegate {
-            if(messages.Buffer.Text == ""){
-                
+            if (messages.Buffer.Text == "") {
+
                 List<FlattiverseMessage> all = client.GetMessageServer().Messages;
                 List<string> lines = new List<string>();
                 foreach (FlattiverseMessage message in all)
                     lines.Add(message.ToString());
                 String s = "";
-                foreach(String m in lines){
+                foreach (String m in lines) {
                     s += m;
                     s += "\n";
                 }

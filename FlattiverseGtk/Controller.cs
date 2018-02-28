@@ -20,25 +20,25 @@ namespace FlattiverseGtk {
             clientThread = new Thread(client.MainLoop);
             clientThread.Name = "clientThread";
 
-            if (client == null)
-                return;
+            //if (client == null)
+                //return;
 
             WindowMenu windowMenu = new WindowMenu(client);
             windowMenu.Run();
 
             try {
-                System.Windows.Forms.Application.Run(new WindowForms(this, client));
+                //System.Windows.Forms.Application.Run(new WindowForms(this, client));
             }catch{}
 
 
-            //window = new WindowMain(this, client);
+            window = new WindowMain(this, client);
 
         }
 
         public void Run(){
             if (client == null)
                 return;
-            //window.Show();
+            window.Show();
         }
 
         void Connect(String email, String password){

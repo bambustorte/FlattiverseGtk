@@ -17,88 +17,86 @@ namespace FlattiverseGtk {
         public static Color GRAY = new Color(0.5, 0.5, 0.5);
         public static Color PURPLE = new Color(0.7, 0, 1);
 
-        Context context;
-        DrawingArea drawingArea;
+        ImageSurface imageSurface;
+        ReaderWriterLock bufLock = new ReaderWriterLock();
+
         Client client;
         int width;
         int height;
         int centerX, centerY;
         float displayFactor;
         float shipRadius;
-        List<Flattiverse.Unit> units;
-        Scanner scanner;
 
-        public RendererCairo(Client client, DrawingArea da){
+        public RendererCairo(Client client, int width, int height) {
             this.client = client;
-            this.context = Gdk.CairoHelper.Create(da.GdkWindow);
-            da.GdkWindow.GetSize(out width, out height);
-            drawingArea = da;
+            this.width = width;
+            this.height = height;
 
-            int radarScreenMinDimension = Math.Min(width, height);
-            displayFactor = radarScreenMinDimension / 500f;
-
-            this.shipRadius = client.GetShipSize() * displayFactor;
+            imageSurface = new ImageSurface(Format.RGB24, width, height);
 
             centerX = width / 2;
             centerY = height / 2;
 
-            units = new List<Flattiverse.Unit>();
-            scanner = client.GetScanner();
+            int radarScreenMinDimension = Math.Min(width, height);
+            displayFactor = radarScreenMinDimension / 500f;
 
-            FlattiverseGtk.Timer timer = new FlattiverseGtk.Timer();
-            Thread timerThread = new Thread(timer.Sleep);
-            timerThread.Name = "timerThread";
-            timerThread.Start();
+            shipRadius = client.GetShipSize();
 
-            client.GetScanner().ScanUpdate += NewScan;
-            timer.GraphicsUpdate += RenderScene;
+            //client.GetScanner().ScanUpdate += NewScan;
         }
 
-        void NewScan(){
-            units = client.Map.UnitList;
+        public ImageSurface ImageSurface {
+            get {
+                bufLock.AcquireReaderLock(20);
+                ImageSurface ret = imageSurface;
+                bufLock.ReleaseReaderLock();
+                return ret;
+            }
         }
 
-        public void RenderScene(){
-            if (!Client.running)
-                return;
+        public void RenderScene() {
+            List<Flattiverse.Unit> units = client.Units;
 
-            Application.Invoke(delegate {
-                context = Gdk.CairoHelper.Create(drawingArea.GdkWindow);
-                Clear();
+            //Application.Invoke(delegate {
+            Context context = new Cairo.Context(imageSurface);
+            bufLock.AcquireWriterLock(20);
+            Clear(context);
 
-                DrawShip(0);
+            DrawShip(context, 0);
 
-                DrawUnits();
+            DrawUnits(context, units);
+            bufLock.ReleaseWriterLock();
 
-                //DrawCrosshair();
+            WindowMain.rendering = false;
+            //DrawCrosshair();
 
-                context.GetTarget().Dispose();
-                context.Dispose();
-            });
+            //context.GetTarget().Dispose();
+            //context.Dispose();
+            //});
         }
 
-        void DrawCrosshair(){
+        void DrawCrosshair(Context context) {
             context.Save();
 
             context.SetSourceColor(WHITE);
             context.Translate(centerX, centerY);
-            context.MoveTo(-10,-10);
-            context.LineTo(10,10);
-            context.MoveTo(-10,10);
-            context.LineTo(10,-10);
+            context.MoveTo(-10, -10);
+            context.LineTo(10, 10);
+            context.MoveTo(-10, 10);
+            context.LineTo(10, -10);
             context.Stroke();
 
             context.Restore();
         }
 
-        private void DrawShip(double angle) {
+        private void DrawShip(Context context, double angle) {
             context.Save();
 
             context.Translate(centerX, centerY);
             context.SetSourceColor(PURPLE);
-            context.Arc(0, 0, shipRadius, angle, Math.PI*2+angle);
+            context.Arc(0, 0, shipRadius * displayFactor, angle, Math.PI * 2 + angle);
             context.ClosePath();
-            context.FillPreserve();
+            context.Stroke();
 
             context.LineWidth = 1;
             context.SetSourceColor(RED);
@@ -109,25 +107,26 @@ namespace FlattiverseGtk {
             context.Restore();
         }
 
-        void DrawUnits() {
+        void DrawUnits(Context context, List<Flattiverse.Unit> units) {
+
             context.Save();
 
             foreach (Flattiverse.Unit u in units) {
-                switch(u.Kind){
+                switch (u.Kind) {
                     case Flattiverse.UnitKind.Sun:
-                        DrawSun(u);
+                        DrawSun(context, u);
                         break;
 
                     case Flattiverse.UnitKind.Moon:
-                        DrawMoon(u);
+                        DrawMoon(context, u);
                         break;
 
                     case Flattiverse.UnitKind.Planet:
-                        DrawPlanet(u);
+                        DrawPlanet(context, u);
                         break;
 
                     default:
-                        DrawUnit(u);
+                        DrawUnit(context, u);
                         break;
                 }
             }
@@ -135,7 +134,7 @@ namespace FlattiverseGtk {
             context.Restore();
         }
 
-        void DrawSun(Flattiverse.Unit u) {
+        void DrawSun(Context context, Flattiverse.Unit u) {
             context.Save();
 
             float uX = centerX + u.Position.X * displayFactor;
@@ -143,15 +142,15 @@ namespace FlattiverseGtk {
             float uR = u.Radius * displayFactor;
 
             context.Arc(uX, uY, uR, 0, 360);
-            context.SetSourceColor(WHITE);
-            context.StrokePreserve();
+            //context.SetSourceColor(WHITE);
+            //context.StrokePreserve();
             context.SetSourceColor(YELLOW);
-            context.Fill();
+            context.Stroke();
 
             context.Restore();
         }
 
-        void DrawMoon(Flattiverse.Unit u) {
+        void DrawMoon(Context context, Flattiverse.Unit u) {
             context.Save();
 
             float uX = centerX + u.Position.X * displayFactor;
@@ -159,15 +158,15 @@ namespace FlattiverseGtk {
             float uR = u.Radius * displayFactor;
 
             context.Arc(uX, uY, uR, 0, 360);
+            //context.SetSourceColor(WHITE);
+            //context.StrokePreserve();
             context.SetSourceColor(WHITE);
-            context.StrokePreserve();
-            context.SetSourceColor(WHITE);
-            context.Fill();
+            context.Stroke();
 
             context.Restore();
         }
 
-        void DrawPlanet(Flattiverse.Unit u) {
+        void DrawPlanet(Context context, Flattiverse.Unit u) {
             context.Save();
 
             float uX = centerX + u.Position.X * displayFactor;
@@ -175,15 +174,15 @@ namespace FlattiverseGtk {
             float uR = u.Radius * displayFactor;
 
             context.Arc(uX, uY, uR, 0, 360);
-            context.SetSourceColor(WHITE);
-            context.StrokePreserve();
+            //context.SetSourceColor(WHITE);
+            //context.StrokePreserve();
             context.SetSourceColor(GRAY);
-            context.Fill();
+            context.Stroke();
 
             context.Restore();
         }
 
-        void DrawUnit(Flattiverse.Unit u) {
+        void DrawUnit(Context context, Flattiverse.Unit u) {
             context.Save();
 
             float uX = centerX + u.Position.X * displayFactor;
@@ -191,15 +190,15 @@ namespace FlattiverseGtk {
             float uR = u.Radius * displayFactor;
 
             context.Arc(uX, uY, uR, 0, 360);
-            context.SetSourceColor(WHITE);
-            context.StrokePreserve();
+            //context.SetSourceColor(WHITE);
+            //context.StrokePreserve();
             context.SetSourceColor(PINK);
-            context.Fill();
+            context.Stroke();
 
             context.Restore();
         }
 
-        void Clear(){
+        void Clear(Context context) {
             context.SetSourceColor(BLACK);
             context.Paint();
         }

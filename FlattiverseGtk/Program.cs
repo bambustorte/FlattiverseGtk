@@ -20,7 +20,7 @@ namespace FlattiverseGtk {
             main.Start();
 
             try {
-                //Application.Run();
+                Application.Run();
             }catch{}
         }
 

@@ -92,6 +92,8 @@
     <Compile Include="Map.cs" />
     <Compile Include="WindowMainForms.cs" />
     <Compile Include="WindowForms.cs" />
+    <Compile Include="Window.cs" />
+    <Compile Include="gtk-gui\FlattiverseGtk.Window.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

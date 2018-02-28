@@ -5,7 +5,6 @@ using System.Threading;
 
 namespace FlattiverseGtk {
     public class Map {
-        List<Unit> units = new List<Unit>();
         Dictionary<string, Unit> mapUnits = new Dictionary<string, Unit>();
         ReaderWriterLock listLock = new ReaderWriterLock();
         Client client;
@@ -48,21 +47,6 @@ namespace FlattiverseGtk {
                 List<Unit> units = new List<Unit>(mapUnits.Values);
                 listLock.ReleaseReaderLock();
                 return units;
-            }
-        }
-
-        public List<Unit> UnitList {
-            get {
-                listLock.AcquireReaderLock(100);
-                List<Unit> listCopy = new List<Unit>(units);
-                listLock.ReleaseReaderLock();
-                return listCopy;
-            }
-
-            set {
-                listLock.AcquireWriterLock(100);
-                units = value;
-                listLock.ReleaseWriterLock();
             }
         }
 
