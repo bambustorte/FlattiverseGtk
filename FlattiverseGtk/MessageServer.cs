@@ -10,6 +10,7 @@ namespace FlattiverseGtk {
         List<FlattiverseMessage> flattiverseMessages = new List<FlattiverseMessage>();
         ReaderWriterLock messageLock = new ReaderWriterLock();
         Client client;
+        public static bool running = true;
 
 
         public MessageServer(Client client) {
@@ -25,24 +26,10 @@ namespace FlattiverseGtk {
             }
         }
 
-        //public void Run() {
-        //    if (!Client.running)
-        //        return;
-
-        //    FlattiverseMessage message;
-        //    messageLock.AcquireWriterLock(100);
-        //    while (client.GetConnector().NextMessage(out message)) {
-        //        flattiverseMessages.Add(message);
-        //        if (NewMessageEvent != null)
-        //            NewMessageEvent(message);
-        //    }
-        //    messageLock.ReleaseWriterLock();
-        //}
-
         public void Run() {
-            while (Client.running) {
+            while (MessageServer.running) {
                 FlattiverseMessage message;
-                while (client.GetConnector().NextMessage(out message)) {
+                while (client.Connector.NextMessage(out message)) {
                     messageLock.AcquireWriterLock(100);
                     flattiverseMessages.Add(message);
                     messageLock.ReleaseWriterLock();

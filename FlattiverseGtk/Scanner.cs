@@ -24,9 +24,13 @@ public class Scanner {
 
     public void Scan() {
         Scan(scanAngle += 90, 300);
-        map.Insert(scannedUnits);
 
-        //this.ScanUpdate += client.GetMessageServer().Run;
+        foreach (Unit u in scannedUnits) {
+            u.Tag = new Tag(client.ticks);
+        }
+
+        map.CleanList();
+        map.Insert(scannedUnits);
 
         if (ScanUpdate != null)
             ScanUpdate();
@@ -36,8 +40,10 @@ public class Scanner {
         scannedUnits = ship.Scan(degree, range);
     }
 
-    public List<Unit> GetUnitList (){
+    public List<Unit> UnitList {
+        get {
             return scannedUnits;
+        }
     }
 
     public override String ToString() {

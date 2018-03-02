@@ -14,11 +14,12 @@ namespace FlattiverseGtk {
         public static Color BLUE = new Color(0, 0, 1);
         public static Color WHITE = new Color(1, 1, 1);
         public static Color YELLOW = new Color(1, 1, 0);
+        public static Color ORANGE = new Color(1, 0.9, 0);
         public static Color GRAY = new Color(0.5, 0.5, 0.5);
         public static Color PURPLE = new Color(0.7, 0, 1);
 
         ImageSurface imageSurface;
-        ReaderWriterLock bufLock = new ReaderWriterLock();
+        ReaderWriterLock imageSurfaceLock = new ReaderWriterLock();
 
         Client client;
         int width;
@@ -41,37 +42,43 @@ namespace FlattiverseGtk {
             displayFactor = radarScreenMinDimension / 500f;
 
             shipRadius = client.GetShipSize();
-
-            //client.GetScanner().ScanUpdate += NewScan;
         }
 
         public ImageSurface ImageSurface {
             get {
-                bufLock.AcquireReaderLock(20);
-                ImageSurface ret = imageSurface;
-                bufLock.ReleaseReaderLock();
+                imageSurfaceLock.AcquireReaderLock(20);
+                ImageSurface ret = new ImageSurface(imageSurface.Data, Format.RGB24, width, height, 4 * width);
+                imageSurfaceLock.ReleaseReaderLock();
                 return ret;
+            }
+            set {
+                imageSurfaceLock.AcquireWriterLock(20);
+
+                imageSurface = value;
+
+                imageSurfaceLock.ReleaseWriterLock();
             }
         }
 
         public void RenderScene() {
             List<Flattiverse.Unit> units = client.Units;
 
-            //Application.Invoke(delegate {
-            Context context = new Cairo.Context(imageSurface);
-            bufLock.AcquireWriterLock(20);
+
+            
+
+
+            Context context = new Cairo.Context(ImageSurface);
             Clear(context);
 
             DrawShip(context, 0);
-
             DrawUnits(context, units);
-            bufLock.ReleaseWriterLock();
 
-            //DrawCrosshair();
 
-            //context.GetTarget().Dispose();
-            //context.Dispose();
-            //});
+
+            context.GetTarget().Dispose();
+            context.Dispose();
+            context = null;
+
         }
 
         void DrawCrosshair(Context context) {
@@ -111,88 +118,34 @@ namespace FlattiverseGtk {
             context.Save();
 
             foreach (Flattiverse.Unit u in units) {
+                float uX = centerX + u.Position.X * displayFactor;
+                float uY = centerY + u.Position.Y * displayFactor;
+                float uR = u.Radius * displayFactor;
+
                 switch (u.Kind) {
                     case Flattiverse.UnitKind.Sun:
-                        DrawSun(context, u);
-                        break;
+                        context.SetSourceColor(ORANGE);
 
+                        //context.Arc(uX, uY, (((Sun)u).Coronas[0]).Radius * displayFactor, 0, 360);
+                        context.Stroke();
+
+                        context.SetSourceColor(YELLOW);
+                        break;
                     case Flattiverse.UnitKind.Moon:
-                        DrawMoon(context, u);
+                        context.SetSourceColor(WHITE);
                         break;
 
                     case Flattiverse.UnitKind.Planet:
-                        DrawPlanet(context, u);
+                        context.SetSourceColor(GRAY);
                         break;
 
                     default:
-                        DrawUnit(context, u);
+                        context.SetSourceColor(PINK);
                         break;
                 }
+                context.Arc(uX, uY, uR, 0, 360);
+                context.Stroke();
             }
-
-            context.Restore();
-        }
-
-        void DrawSun(Context context, Flattiverse.Unit u) {
-            context.Save();
-
-            float uX = centerX + u.Position.X * displayFactor;
-            float uY = centerY + u.Position.Y * displayFactor;
-            float uR = u.Radius * displayFactor;
-
-            context.Arc(uX, uY, uR, 0, 360);
-            //context.SetSourceColor(WHITE);
-            //context.StrokePreserve();
-            context.SetSourceColor(YELLOW);
-            context.Stroke();
-
-            context.Restore();
-        }
-
-        void DrawMoon(Context context, Flattiverse.Unit u) {
-            context.Save();
-
-            float uX = centerX + u.Position.X * displayFactor;
-            float uY = centerY + u.Position.Y * displayFactor;
-            float uR = u.Radius * displayFactor;
-
-            context.Arc(uX, uY, uR, 0, 360);
-            //context.SetSourceColor(WHITE);
-            //context.StrokePreserve();
-            context.SetSourceColor(WHITE);
-            context.Stroke();
-
-            context.Restore();
-        }
-
-        void DrawPlanet(Context context, Flattiverse.Unit u) {
-            context.Save();
-
-            float uX = centerX + u.Position.X * displayFactor;
-            float uY = centerY + u.Position.Y * displayFactor;
-            float uR = u.Radius * displayFactor;
-
-            context.Arc(uX, uY, uR, 0, 360);
-            //context.SetSourceColor(WHITE);
-            //context.StrokePreserve();
-            context.SetSourceColor(GRAY);
-            context.Stroke();
-
-            context.Restore();
-        }
-
-        void DrawUnit(Context context, Flattiverse.Unit u) {
-            context.Save();
-
-            float uX = centerX + u.Position.X * displayFactor;
-            float uY = centerY + u.Position.Y * displayFactor;
-            float uR = u.Radius * displayFactor;
-
-            context.Arc(uX, uY, uR, 0, 360);
-            //context.SetSourceColor(WHITE);
-            //context.StrokePreserve();
-            context.SetSourceColor(PINK);
-            context.Stroke();
 
             context.Restore();
         }

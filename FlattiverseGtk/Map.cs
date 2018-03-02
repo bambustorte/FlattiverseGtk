@@ -11,27 +11,8 @@ namespace FlattiverseGtk {
 
         public Map(Client client) {
             this.client = client;
-            //client.TickEvent += MoveAway;
+            //this.client.TickEvent += CleanList;
         }
-
-        //public void Insert(List<Unit> scannedUnits){
-        //    foreach(Unit nU in scannedUnits){
-        //        bool contains = false;
-        //
-        //        listLock.AcquireWriterLock(100);
-        //        for (int i = 0; i < units.Count; i++){
-        //            if(nU.Name == units[i].Name){
-        //                contains = true;
-        //                units[i] = nU;
-        //            }
-        //        }
-        //
-        //        if(!contains){
-        //            units.Add(nU);
-        //        }
-        //        listLock.ReleaseWriterLock();
-        //    }
-        //}
 
         public void Insert(List<Unit> units) {
             listLock.AcquireWriterLock(100);
@@ -47,6 +28,21 @@ namespace FlattiverseGtk {
                 List<Unit> units = new List<Unit>(mapUnits.Values);
                 listLock.ReleaseReaderLock();
                 return units;
+            }
+        }
+
+        public void CleanList(){
+            List<String> ToDelete = new List<String>();
+
+            foreach(Unit u in Units){
+                if (((Tag)u.Tag).TickCreatedTimestamp < client.ticks - 5)
+                    ToDelete.Add(u.Name);
+            }
+
+            foreach(String s in ToDelete){
+                listLock.AcquireWriterLock(100);
+                mapUnits.Remove(s);
+                listLock.ReleaseWriterLock();
             }
         }
 

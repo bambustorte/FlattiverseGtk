@@ -94,6 +94,9 @@
     <Compile Include="WindowForms.cs" />
     <Compile Include="Window.cs" />
     <Compile Include="gtk-gui\FlattiverseGtk.Window.cs" />
+    <Compile Include="WindowFullscreen.cs" />
+    <Compile Include="Canvas.cs" />
+    <Compile Include="Tag.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

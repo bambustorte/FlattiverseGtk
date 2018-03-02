@@ -23,6 +23,7 @@ public class Client {
     public event TickHandler TickEvent;
     bool canMove = true;
     Vector moveVector;
+    public long ticks = (long.MinValue+100);
 
 
     public static Client GetInstance(Controller controller, String email, String password) {
@@ -80,6 +81,7 @@ public class Client {
                     Move();
                     if(TickEvent != null)
                         TickEvent();
+                    ticks++;
                     ugfc.Commit();
                     canMove = true;
                 } catch (Exception exception) {
@@ -90,12 +92,16 @@ public class Client {
         }
     }
 
-    public Connector GetConnector() {
-        return connector;
+    public Connector Connector {
+        get {
+            return connector;
+        }
     }
 
-    public MessageServer GetMessageServer() {
-        return messageServer;
+    public MessageServer MessageServer {
+        get {
+            return messageServer;
+        }
     }
 
     public void SelectShipAndCreateScanner(String shipName, String modelName) {
@@ -104,7 +110,7 @@ public class Client {
     }
 
     public List<Flattiverse.Unit> GetScan() {
-        return scanner.GetUnitList();
+        return scanner.UnitList;
     }
 
     public UniverseGroup JoinGroup(String name) {
@@ -113,7 +119,7 @@ public class Client {
         return ug;
     }
 
-    public void JoinGame() {
+    public void ShipContinue() {
         ship.Continue();
     }
 
@@ -131,8 +137,22 @@ public class Client {
         }
     }
 
+    public int ShotsAvailable {
+        get {
+            return (int)ship.WeaponProductionStatus;
+        }
+    }
+
+    public void Shoot(Vector direction){
+        
+        if (ShotsAvailable > 0) {
+            ship.Shoot(direction, 5);
+        }
+    }
+
     public void Stop() {
         Client.running = false;
+        MessageServer.running = false;
         if (connector != null) {
             connector.Close();
         }
@@ -159,8 +179,10 @@ public class Client {
         ship.Move(moveVector);
     }
 
-    public Scanner GetScanner(){
-        return scanner;
+    public Scanner Scanner {
+        get {
+            return scanner;
+        }
     }
 
     public Map Map {
@@ -178,6 +200,12 @@ public class Client {
     public Ship Ship {
         get {
             return ship;
+        }
+    }
+
+    public float ShipEnergyPercent {
+        get {
+            return (ship.Energy / ship.EnergyMax) * 100;
         }
     }
 }

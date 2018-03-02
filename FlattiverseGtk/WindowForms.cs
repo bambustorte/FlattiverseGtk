@@ -11,12 +11,16 @@ public partial class WindowForms : System.Windows.Forms.Form {
     Controller controller;
     Client client;
 
-    Button buttonJoin;
-    Button buttonQuit;
-    ProgressBar energyBar;
-    Panel drawingArea;
-    RichTextBox messages;
-    TableLayoutPanel table;
+    Button buttonJoin = new Button();
+    Button buttonQuit = new Button();
+    ProgressBar energyBar = new ProgressBar();
+    Panel drawingArea = new Panel();
+    RichTextBox messages = new RichTextBox();
+    //TableLayoutPanel table = new TableLayoutPanel();
+    FlowLayoutPanel vertical = new FlowLayoutPanel();
+    FlowLayoutPanel horizontal1 = new FlowLayoutPanel();
+    FlowLayoutPanel horizontal2 = new FlowLayoutPanel();
+    FlowLayoutPanel horizontal3 = new FlowLayoutPanel();
 
     float zoomFactor = 1000f;
 
@@ -31,84 +35,94 @@ public partial class WindowForms : System.Windows.Forms.Form {
             energyBar.Value = (int)client.Ship.Energy;
         };
 
-        client.GetMessageServer().NewMessageEvent += NewMessage;
+        client.MessageServer.NewMessageEvent += NewMessage;
         drawingArea.Paint += RadarScreenPaintEventHandler;
         drawingArea.Resize += RadarScreenResizedHandler;
-        client.GetScanner().ScanUpdate += ScanUpdate;
+        client.Scanner.ScanUpdate += ScanUpdate;
         Resize += WindowResized;
 
         drawingArea.Select();
     }
 
     void Build() {
+        
 
-        table = new TableLayoutPanel();
-        table.Size = Size;
-        table.ColumnCount = 3;
-        table.RowCount = 3;
+        vertical.FlowDirection = FlowDirection.TopDown;
+        horizontal1.FlowDirection = FlowDirection.LeftToRight;
+        horizontal2.FlowDirection = FlowDirection.LeftToRight;
+        horizontal3.FlowDirection = FlowDirection.LeftToRight;
 
 
-        buttonQuit = new Button();
+        //table.Size = Size;
+        //table.ColumnCount = 3;
+        //table.RowCount = 3;
+
         buttonQuit.Text = "Quit";
         buttonQuit.Click += OnButtonQuitClicked;
-        table.Controls.Add(buttonQuit, 0, 0);
+        //table.Controls.Add(buttonQuit, 0, 0);
+        horizontal1.Controls.Add(buttonQuit);
 
-        buttonJoin = new Button();
         buttonJoin.Text = "Join";
         buttonJoin.Click += OnButtonJoinClicked;
-        table.Controls.Add(buttonJoin, 0, 0);
+        //table.Controls.Add(buttonJoin, 0, 0);
+        horizontal1.Controls.Add(buttonJoin);
 
-        energyBar = new ProgressBar();
         energyBar.Maximum = (int)client.Ship.EnergyMax;
         energyBar.Step = 10;
         energyBar.Value = energyBar.Maximum;
-        table.Controls.Add(energyBar, 2, 0);
+        //table.Controls.Add(energyBar, 2, 0);
+        horizontal1.Controls.Add(energyBar);
 
-        TableLayoutPanel subTable = new TableLayoutPanel();
-        subTable.ColumnCount = 1;
-        subTable.RowCount = 2;
-        TextBox zoom = new TextBox();
-        zoom.Text = zoomFactor.ToString();
-        Button app = new Button();
-        app.Text = "Apply";
-        app.Click += (sender, e) => { this.zoomFactor = float.Parse(zoom.Text); };
-        subTable.Controls.Add(zoom, 0, 0);
-        subTable.Controls.Add(app, 0, 1);
-        table.Controls.Add(subTable, 0, 1);
+        //TableLayoutPanel subTable = new TableLayoutPanel();
+        //subTable.ColumnCount = 1;
+        //subTable.RowCount = 2;
+        //TextBox zoom = new TextBox();
+        //zoom.Text = zoomFactor.ToString();
+        //Button app = new Button();
+        //app.Text = "Apply";
+        //app.Click += (sender, e) => { this.zoomFactor = float.Parse(zoom.Text); };
+        //subTable.Controls.Add(zoom, 0, 0);
+        //subTable.Controls.Add(app, 0, 1);
+        //table.Controls.Add(subTable, 0, 1);
 
-        drawingArea = new Panel();
-        drawingArea.Size = new Size(400, 200);
-
+        //drawingArea.Size = new Size(400, 200);
         drawingArea.MouseClick += DrawingClicked;
         drawingArea.MouseWheel += (sender, e) => {
             float number = ((e.Delta / Math.Abs(e.Delta)) * 100);
             zoomFactor += number + zoomFactor < 200 ? 200 : number;
-            zoom.Text = zoomFactor.ToString();
+            //zoom.Text = zoomFactor.ToString();
         };
-        table.Controls.Add(drawingArea, 1, 1);
+        //table.Controls.Add(drawingArea, 1, 1);
+        horizontal2.Controls.Add(drawingArea);
 
-        messages = new RichTextBox();
-        messages.Size = drawingArea.Size;
-        table.Controls.Add(messages, 1, 2);
+        //messages.Size = drawingArea.Size;
+        //table.Controls.Add(messages, 1, 2);
+        horizontal3.Controls.Add(messages);
 
-        table.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
-        table.AutoSize = true;
+        //table.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
+        //table.AutoSize = true;
 
-        Controls.Add(table);
+        //vertical.Controls.Add(horizontal1);
+        //vertical.Controls.Add(horizontal2);
+        vertical.Controls.Add(horizontal3);
+
+        Controls.Add(vertical);
+        //Controls.Add(table);
     }
 
     protected void OnButtonQuitClicked(object sender, EventArgs e) {
         Dispose();
-        //controller.StopAll();
+        //System.Windows.Forms.Application.Exit();
+        controller.StopAll();
     }
 
     void WindowResized(object sender, EventArgs e) {
-        table.Size = Size;
-
+        //table.Size = Size;
+        //vertical.Size = Size;
     }
 
     private void RadarScreenResizedHandler(object sender, EventArgs e) {
-        drawingArea.Refresh();
+        //drawingArea.Refresh();
     }
 
     void RadarScreenPaintEventHandler(object sender, PaintEventArgs e) {
@@ -168,7 +182,7 @@ public partial class WindowForms : System.Windows.Forms.Form {
     protected void OnButtonJoinClicked(object sender, EventArgs e) {
         buttonJoin.Enabled = false;
         try {
-            client.JoinGame();
+            client.ShipContinue();
             controller.StartAll();
         } catch (GameException gE) {
             Console.WriteLine(gE.Message);
@@ -200,7 +214,7 @@ public partial class WindowForms : System.Windows.Forms.Form {
         } else {
             if (messages.Text == "") {
 
-                List<FlattiverseMessage> all = client.GetMessageServer().Messages;
+                List<FlattiverseMessage> all = client.MessageServer.Messages;
                 List<string> lines = new List<string>();
                 foreach (FlattiverseMessage message in all)
                     lines.Add(message.ToString());

@@ -1,7 +1,17 @@
 ﻿using System;
 namespace FlattiverseGtk {
     public class Tag {
-        public Tag() {
+
+        long tickstamp;
+
+        public Tag(long ticks) {
+            tickstamp = ticks;
+        }
+
+        public long TickCreatedTimestamp {
+            get{
+                return TickCreatedTimestamp;
+            }
         }
     }
 }

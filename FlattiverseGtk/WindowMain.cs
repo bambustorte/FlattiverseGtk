@@ -5,6 +5,7 @@ using Cairo;
 using Flattiverse;
 using FlattiverseGtk;
 using System.Collections.Generic;
+using System.Threading;
 
 public partial class WindowMain : Gtk.Window {
     
@@ -23,6 +24,7 @@ public partial class WindowMain : Gtk.Window {
     Controller controller;
     Client client;
     //FlattiverseGtk.Timer timer = new FlattiverseGtk.Timer();
+    //RendererCairo renderer;
 
     int daWidth, daHeight, rec = 0;
     int centerX, centerY;
@@ -50,7 +52,10 @@ public partial class WindowMain : Gtk.Window {
 
         shipRadius = client.GetShipSize();
 
-        client.TickEvent += drawingarea1.QueueDraw;
+        //renderer = new RendererCairo(client, daWidth, daHeight);
+
+        client.TickEvent += RenderScene;
+        //timer.GraphicsUpdate += drawingarea1.QueueDraw;
 
         drawingarea1.AddEvents((int)Gdk.EventMask.ButtonPressMask);
         drawingarea1.ButtonPressEvent += delegate (object o, ButtonPressEventArgs args) {
@@ -60,7 +65,7 @@ public partial class WindowMain : Gtk.Window {
             );
         };
 
-        client.GetMessageServer().NewMessageEvent += NewMessage;
+        client.MessageServer.NewMessageEvent += NewMessage;
 
 
         //timer.GraphicsUpdate += drawingarea1.QueueDraw;//RenderScene;
@@ -85,7 +90,7 @@ public partial class WindowMain : Gtk.Window {
     protected void OnButtonJoinClicked(object sender, EventArgs e) {
         buttonJoin.Sensitive = false;
         try {
-            client.JoinGame();
+            client.ShipContinue();
             controller.StartAll();
         } catch (GameException gE){
             Console.WriteLine(gE.Message);
@@ -97,7 +102,7 @@ public partial class WindowMain : Gtk.Window {
         Application.Invoke(delegate {
             if(messages.Buffer.Text == ""){
                 
-                List<FlattiverseMessage> all = client.GetMessageServer().Messages;
+                List<FlattiverseMessage> all = client.MessageServer.Messages;
                 List<string> lines = new List<string>();
                 foreach (FlattiverseMessage message in all)
                     lines.Add(message.ToString());
@@ -143,6 +148,7 @@ public partial class WindowMain : Gtk.Window {
     public void RenderScene() {
         Application.Invoke(
             delegate {
+
                 List<Flattiverse.Unit> units = client.Units;
 
                 progressbar1.Fraction = client.Ship.Energy / client.Ship.EnergyMax;
@@ -232,52 +238,9 @@ public partial class WindowMain : Gtk.Window {
         context.Restore();
     }
 
-
-
-    void DrawPlanet(Context context, Flattiverse.Unit u) {
-        context.Save();
-
-        float uX = centerX + u.Position.X * displayFactor;
-        float uY = centerY + u.Position.Y * displayFactor;
-        float uR = u.Radius * displayFactor;
-
-        context.Arc(uX, uY, uR, 0, 360);
-        //context.SetSourceColor(WHITE);
-        //context.StrokePreserve();
-        context.SetSourceColor(GRAY);
-        context.Stroke();
-
-        context.Restore();
-    }
-
-    void DrawUnit(Context context, Flattiverse.Unit u) {
-        context.Save();
-
-        float uX = centerX + u.Position.X * displayFactor;
-        float uY = centerY + u.Position.Y * displayFactor;
-        float uR = u.Radius * displayFactor;
-
-        context.Arc(uX, uY, uR, 0, 360);
-        //context.SetSourceColor(WHITE);
-        //context.StrokePreserve();
-        context.SetSourceColor(PINK);
-        context.Stroke();
-
-        context.Restore();
-    }
-
     void Clear(Context context) {
         context.SetSourceColor(BLACK);
         context.Paint();
-    }
-
-    int Tete {
-        get {
-            rec++;
-            if (rec > 200)
-                rec = 0;
-            return rec;
-        }
     }
 
 }
