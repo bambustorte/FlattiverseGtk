@@ -91,6 +91,11 @@ public partial class WindowFullscreen : System.Windows.Forms.Form {
             g.DrawString(client.ShipEnergyPercent.ToString(), 
                          new Font(System.Drawing.FontFamily.GenericMonospace, 10), 
                          Brushes.White, 10, 10);
+            
+            g.DrawString(client.Ship.WeaponProductionStatus.ToString(),
+                         new Font(System.Drawing.FontFamily.GenericMonospace, 10),
+                         Brushes.White, 200, 10);
+
 
             g.DrawLine(Pens.Green, one, two);
         }
@@ -101,7 +106,8 @@ public partial class WindowFullscreen : System.Windows.Forms.Form {
             float uR = u.Radius * displayFactor;
             Pen pen;
 
-            g.DrawString(u.Name, new Font(System.Drawing.FontFamily.GenericMonospace, 10), Brushes.White,uX,uY);
+            String naem = "";
+            naem += u.Name + " <" + u.Kind + ">";
 
             switch (u.Kind) {
                 case UnitKind.Sun:
@@ -126,10 +132,34 @@ public partial class WindowFullscreen : System.Windows.Forms.Form {
                     pen = Pens.Cyan;
                     Console.WriteLine(((Buoy)u).Message);
                     break;
+                case UnitKind.Shot:
+                    pen = Pens.Red;
+                    break;
+                case UnitKind.MissionTarget:
+                    MissionTarget tar = ((MissionTarget)u);
+                    naem += tar.SequenceNumber;
+
+                    if (tar.DominationRadius > 0) {
+                        Color col = tar.Team != null ? tar.Team.Color : Color.White;
+                        Pen tempen = new Pen(col);
+
+                        g.DrawArc(tempen, uX, uY, tar.DominationRadius, tar.DominationRadius, 0, 360);
+                        g.DrawArc(tempen, centerX - uX, centerY - uY, tar.DominationRadius, tar.DominationRadius, 0, (tar.DominationTicks /350f));
+                    }
+                    pen = Pens.Cyan;
+                    break;
+           
+                case UnitKind.PlayerShip:
+                    pen = new Pen(((PlayerShip)u).Team.Color);
+                    break;
                 default:
                     pen = Pens.Pink;
                     break;
             }
+
+
+            g.DrawString(naem, new Font(System.Drawing.FontFamily.GenericMonospace, 10), Brushes.White, uX, uY);
+
             g.DrawEllipse(pen, uX - uR, uY - uR, uR * 2, uR * 2);
         }
     }
@@ -150,8 +180,7 @@ public partial class WindowFullscreen : System.Windows.Forms.Form {
                 - new Vector(drawingArea.Width / 2, drawingArea.Height / 2)
             );
         } else if(e.Button == MouseButtons.Right){
-            client.Shoot(new Vector((float)e.X, e.Y)
-                         - new Vector(drawingArea.Width / 2, drawingArea.Height / 2));
+            client.Shoot(new Vector(e.X, e.Y) - new Vector(drawingArea.Width / 2, drawingArea.Height / 2));
         }
     }
 
@@ -163,11 +192,11 @@ public partial class WindowFullscreen : System.Windows.Forms.Form {
 
     private void NewMessage(FlattiverseMessage flattiverseMessage) {
         if (InvokeRequired) {
-            Invoke(
-                (MethodInvoker)delegate {
-                    NewMessage(flattiverseMessage);
-                }
-            );
+            //Invoke(
+            //    (MethodInvoker)delegate {
+            //        NewMessage(flattiverseMessage);
+            //    }
+            //);
         } else {
             //todo display old messages
             //todo display messages at all
@@ -213,6 +242,12 @@ public partial class WindowFullscreen : System.Windows.Forms.Form {
             case Keys.D:
                 
                 break;
+            case Keys.Space:
+                Vector mv = new Vector(0, 0);
+                mv.Length = 0;
+                client.SetMoveVector(mv);
+                break;
+
             case Keys.J:
                 JoinHandler();
                 break;

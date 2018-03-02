@@ -8,6 +8,7 @@ namespace FlattiverseGtk {
         Client client;
         ComboBox designsDropdown;
         ComboBox universesDropdown;
+        ComboBox teamDropdown;
 
         public WindowMenu(Client client) {
             this.client = client;
@@ -20,7 +21,7 @@ namespace FlattiverseGtk {
 
             ////////////////////////
             List<String> designEntries = new List<string>();
-            foreach(ControllableDesign c in client.Designs) {
+            foreach (ControllableDesign c in client.Designs) {
                 designEntries.Add(c.Name);
             }
             designsDropdown = new ComboBox(designEntries.ToArray());
@@ -39,6 +40,23 @@ namespace FlattiverseGtk {
             if (universeEntries.Count > 0)
                 universesDropdown.Active = 0;
             VBox.Add(universesDropdown);
+            teamDropdown = new ComboBox();
+            universesDropdown.Changed += (sender, e) => {
+                VBox.Remove(teamDropdown);
+                List<String> teamEntries = new List<string>();
+                foreach (Team c in client.GetTeams(universesDropdown.ActiveText)) {
+                    teamEntries.Add(c.Name);
+                }
+                teamDropdown = new ComboBox(teamEntries.ToArray());
+                VBox.Add(teamDropdown);
+                VBox.ShowAll();
+            };
+            //VBox.Add(teamDropdown);
+            ////////////////////////
+
+
+            ////////////////////////
+
             ////////////////////////
 
 

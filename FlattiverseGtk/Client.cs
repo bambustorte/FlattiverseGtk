@@ -23,6 +23,7 @@ public class Client {
     public event TickHandler TickEvent;
     bool canMove = true;
     Vector moveVector;
+    Vector stillVector;
     public long ticks = (long.MinValue+100);
 
 
@@ -45,6 +46,7 @@ public class Client {
             map = new Map(this);
 
             moveVector = new Vector();
+            stillVector = new Vector();
 
             messageServerThread = new Thread(messageServer.Run);
             messageServerThread.Name = "messageServerThread";
@@ -71,7 +73,9 @@ public class Client {
             return;
 
         using(UniverseGroupFlowControl ugfc = ug.GetNewFlowControl()){
-        //ug.Chat("switched state to peaceful");
+            //ug.Chat("switched state to peaceful");
+
+             
 
             while (Client.running) {
                 ugfc.PreWait();
@@ -85,8 +89,17 @@ public class Client {
                     ugfc.Commit();
                     canMove = true;
                 } catch (Exception exception) {
-                    Console.WriteLine(exception.Message);
-                    Client.running = false;
+                    try {
+                        Console.WriteLine(exception.Message);
+                        if(!ship.IsAlive || ShipEnergyPercent < 0.5){
+                            try{
+                                ship.Kill();
+                            }catch{}
+                            ship.Continue();
+                        }
+                    }catch (Exception e){
+                        Console.WriteLine(e.Message);
+                    }
                 }
             }
         }
@@ -115,8 +128,21 @@ public class Client {
 
     public UniverseGroup JoinGroup(String name) {
         ug = connector.UniverseGroups[name];
+        if (name.Equals("DOM II")) {
+            ug.Join(name, ug.Teams["Signalling Orange"]);
+            return ug;
+        }
+        if (name.Equals("DOM I")) {
+            ug.Join(name, ug.Teams["Blue"]);
+            return ug;
+        }
+            
         ug.Join(name, ug.Teams["None"]);
         return ug;
+    }
+
+    public Team[] GetTeams (String universeGr){
+        return (connector.UniverseGroups[universeGr].Teams).List.ToArray();
     }
 
     public void ShipContinue() {
@@ -146,7 +172,15 @@ public class Client {
     public void Shoot(Vector direction){
         
         if (ShotsAvailable > 0) {
-            ship.Shoot(direction, 5);
+            
+            float maxTime = ship.WeaponShot.Time.Limit;
+            float maxSpeed = ship.WeaponShot.Speed.Limit;
+            float shootLimit = maxTime * maxSpeed;
+            //float needTime = direction.Length / maxSpeed;
+            direction.Length = maxSpeed;
+
+            ship.Shoot(direction, (int)maxTime);
+
         }
     }
 

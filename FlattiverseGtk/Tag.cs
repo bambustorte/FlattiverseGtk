@@ -10,7 +10,7 @@ namespace FlattiverseGtk {
 
         public long TickCreatedTimestamp {
             get{
-                return TickCreatedTimestamp;
+                return tickstamp;
             }
         }
     }

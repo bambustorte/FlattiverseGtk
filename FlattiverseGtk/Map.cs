@@ -35,8 +35,12 @@ namespace FlattiverseGtk {
             List<String> ToDelete = new List<String>();
 
             foreach(Unit u in Units){
-                if (((Tag)u.Tag).TickCreatedTimestamp < client.ticks - 5)
-                    ToDelete.Add(u.Name);
+                try {
+                    if (((Tag)u.Tag).TickCreatedTimestamp < client.ticks - 5)
+                        ToDelete.Add(u.Name);
+                }catch(Exception e){
+                    Console.WriteLine(e.Message);
+                }
             }
 
             foreach(String s in ToDelete){

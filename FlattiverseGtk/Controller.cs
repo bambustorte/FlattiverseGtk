@@ -1,6 +1,7 @@
 ﻿using System;
 using Flattiverse;
 using System.Threading;
+using System.IO;
 
 namespace FlattiverseGtk {
     public class Controller {
@@ -13,6 +14,18 @@ namespace FlattiverseGtk {
             
             WindowLogin windowLogin = new WindowLogin(email, password);
             windowLogin.Run();
+
+            if (!File.Exists("benchmark.bin")) {
+                PerformanceMark newBenchmark = Connector.DoBenchmark();
+                File.WriteAllBytes("benchmark.bin", Connector.SaveBenchmark());
+            } else {
+                Connector.LoadBenchmark(File.ReadAllBytes("benchmark.bin"));
+            }
+
+
+
+
+
 
             Connect(WindowLogin.email, WindowLogin.password);
 
