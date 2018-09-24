@@ -22,19 +22,11 @@ namespace FlattiverseGtk {
                 Connector.LoadBenchmark(File.ReadAllBytes("benchmark.bin"));
             }
 
-
-
-
-
-
             Connect(WindowLogin.email, WindowLogin.password);
 
 
             clientThread = new Thread(client.MainLoop);
             clientThread.Name = "clientThread";
-
-            //if (client == null)
-                //return;
 
             WindowMenu windowMenu = new WindowMenu(client);
             windowMenu.Run();

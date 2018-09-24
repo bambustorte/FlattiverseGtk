@@ -254,6 +254,9 @@ public partial class WindowFullscreen : System.Windows.Forms.Form {
             case Keys.K:
                 client.Ship.Kill();
                 break;
+            case Keys.O:
+                client.BuildProbe();
+                break;
         }
     }
 

@@ -25,6 +25,7 @@ public class Client {
     Vector moveVector;
     Vector stillVector;
     public long ticks = (long.MinValue+100);
+    List<Probe> probes = new List<Probe>();
 
 
     public static Client GetInstance(Controller controller, String email, String password) {
@@ -115,6 +116,11 @@ public class Client {
         get {
             return messageServer;
         }
+    }
+
+    public void BuildProbe(){
+        Probe d = (Probe)ship.Build("sonde1", "test" + ((new Random()).Next()), 0);
+        probes.Add(d);
     }
 
     public void SelectShipAndCreateScanner(String shipName, String modelName) {
